@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veritas AI – Enterprise Evidence Intelligence Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            canvas: '#EFF2F6',
+            sidebar: '#0D1017',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #EFF2F6;
+      color: #0F172A;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+</head>
+<body class="bg-[#EFF2F6] text-[#0F172A] min-h-screen flex flex-col antialiased select-none">
+
+  <div class="flex flex-1 min-h-screen">
+    <!-- ================= SLEEK DARK SIDEBAR ================= -->
+    <aside id="sidebar" class="w-64 bg-[#0D1017] border-r border-[#1B202D] flex flex-col justify-between transition-all duration-200 select-none shrink-0 shadow-xl z-30">
+      <div class="flex-1 overflow-y-auto py-3">
+        <!-- Brand Header -->
+        <div class="h-14 flex items-center justify-between px-4 mb-2">
+          <div class="flex items-center gap-2.5">
+            <div class="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-950/40">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            </div>
+            <div id="brand-text">
+              <span class="font-bold text-sm tracking-tight text-white">Veritas<span class="text-emerald-400">AI</span></span>
+            </div>
+          </div>
+          <button onclick="toggleSidebar()" class="w-7 h-7 rounded-full border border-slate-700/60 bg-[#161B26] text-slate-400 hover:text-white hover:border-slate-500 flex items-center justify-center transition-colors" title="Toggle Sidebar">
+            <svg id="collapse-icon" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+          </button>
+        </div>
+
+        <!-- Categorized Nav Links -->
+        <div class="px-3 space-y-4">
+          <!-- MAIN SECTION -->
+          <div class="space-y-1">
+            <div class="sidebar-heading text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-2 pb-1">MAIN</div>
+            
+            <button onclick="navigate('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-900 shadow-sm transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+              <span class="nav-label text-[13px]">Dashboard</span>
+            </button>
+
+            <button onclick="navigate('verify')" id="nav-verify" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              <div class="nav-label flex-1 flex justify-between items-center text-[13px]">
+                <span>Verify Claims</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Live</span>
+              </div>
+            </button>
+
+            <button onclick="navigate('documents')" id="nav-documents" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span class="nav-label text-[13px]">Documents</span>
+            </button>
+
+            <button onclick="navigate('evidence')" id="nav-evidence" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+              <span class="nav-label text-[13px]">Evidence Matrix</span>
+            </button>
+          </div>
+
+          <!-- ANALYTICS SECTION -->
+          <div class="space-y-1">
+            <div class="sidebar-heading text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-2 pb-1">ANALYTICS</div>
+            
+            <button onclick="navigate('reports')" id="nav-reports" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+              <span class="nav-label text-[13px]">Audit Reports</span>
+            </button>
+          </div>
+
+          <!-- MANAGEMENT SECTION -->
+          <div class="space-y-1">
+            <div class="sidebar-heading text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-2 pb-1">MANAGEMENT</div>
+
+            <button onclick="navigate('history')" id="nav-history" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <span class="nav-label text-[13px]">History</span>
+            </button>
+          </div>
+
+          <!-- OTHER SECTION -->
+          <div class="space-y-1">
+            <div class="sidebar-heading text-[10px] font-bold uppercase tracking-wider text-slate-500 px-3 pt-2 pb-1">OTHER</div>
+
+            <button onclick="navigate('settings')" id="nav-settings" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all">
+              <svg class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span class="nav-label text-[13px]">Settings</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar Footer -->
+      <div class="p-3 border-t border-[#1B202D] bg-[#090C12]">
+        <div class="flex items-center justify-between px-2 py-1">
+          <div class="flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-[11px] text-slate-400 font-medium">Veritas v2.6</span>
+          </div>
+          <span class="text-[10px] font-mono text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded">ENTERPRISE</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ================= MAIN CONTENT CANVAS ================= -->
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <header class="h-20 w-full px-6 sm:px-8 flex items-center justify-between select-none">
+        <h1 id="page-title" class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          AI Analysis Overview
+        </h1>
+
+        <div class="flex items-center gap-4">
+          <!-- Rounded Search Bar (matches reference) -->
+          <div class="relative w-64 lg:w-80">
+            <svg class="absolute left-3.5 top-3 h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" placeholder="Search..." class="w-full bg-white border border-slate-200/80 rounded-2xl pl-10 pr-4 py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/5 shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+          </div>
+
+          <!-- Auditor Profile Widget -->
+          <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl bg-white border border-slate-200/80 shadow-xs">
+            <div class="h-7 w-7 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center justify-center">
+              A
+            </div>
+            <div class="hidden sm:flex flex-col text-left">
+              <span class="text-xs font-semibold text-slate-900 leading-tight">Dr. Aris Vance</span>
+              <span class="text-[10px] text-slate-400 font-medium leading-tight">Chief Auditor</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW CONTAINERS -->
+      <main class="flex-1 p-6 sm:p-8 max-w-[1600px] w-full mx-auto">
+        
+        <!-- ================= VIEW 1: DASHBOARD ================= -->
+        <div id="view-dashboard" class="view-panel space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- LEFT COLUMN (~40% width) -->
+            <div class="lg:col-span-5 space-y-6">
+              
+              <!-- Card 1: Document Status with Shuffle Button -->
+              <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 class="text-base font-bold text-slate-900 tracking-tight">Document Status</h2>
+                    <p class="text-[11px] text-slate-400">Ground-truth verification target</p>
+                  </div>
+                  <button onclick="shuffleScenario()" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs" title="Cycle through different test files">
+                    <span class="text-emerald-600">✨</span>
+                    <span>🎲 Shuffle Test File</span>
+                  </button>
+                </div>
+
+                <!-- Test File Dropdown Selector -->
+                <div class="mb-3">
+                  <select id="dash-doc-select" onchange="selectScenarioByIndex(this.value)" class="w-full text-xs bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 font-semibold text-slate-800 focus:outline-none focus:bg-white cursor-pointer">
+                    <option value="0">📄 NDA_v3.2_Draft.pdf (4 pages • Legal)</option>
+                    <option value="1">📊 SEC_10K_Alphabet_2024.pdf (142 pages • Financial)</option>
+                    <option value="2">💊 BioPharma_Phase3_Cardiovascular_Trial.pdf (3 pages • Clinical)</option>
+                    <option value="3">🛡️ Cyber_SecOps_Global_Incident_Report_2026.pdf (4 pages • SecOps)</option>
+                    <option value="4">🚗 Patent_AI_Autonomous_Driving_US11492.pdf (3 pages • Patent)</option>
+                    <option value="5">🌱 GreenTech_ESG_Carbon_Neutrality_2026.pdf (3 pages • ESG)</option>
+                  </select>
+                </div>
+
+                <!-- Document Pill Item -->
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50/80 border border-slate-150 mb-4">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="h-10 w-10 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500 shrink-0">
+                      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div class="min-w-0">
+                      <p id="dash-doc-name" class="text-xs font-bold text-slate-900 truncate">NDA_v3.2_Draft.pdf</p>
+                      <p id="dash-doc-meta" class="text-[11px] text-slate-400 font-medium">PDF • 1.1 MB</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0 ml-2">
+                    <button onclick="openPreviewModal()" class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-slate-200">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Metadata Rows -->
+                <div class="space-y-2.5 text-xs pb-4 border-b border-slate-100">
+                  <div class="flex justify-between items-center text-slate-500">
+                    <span class="font-medium">Analyzed:</span>
+                    <span id="dash-analyzed-date" class="font-semibold text-slate-900">07 Nov 2025</span>
+                  </div>
+                  <div class="flex justify-between items-center text-slate-500">
+                    <span class="font-medium">Auditor:</span>
+                    <span class="font-semibold text-slate-900">Anna K., Lead Associate</span>
+                  </div>
+                </div>
+
+                <!-- Review Progress -->
+                <div class="pt-4 space-y-2.5">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-900 tracking-tight">AI Review Progress</span>
+                    <span id="dash-progress-text" class="text-xs font-bold text-teal-600 font-mono">91% complete</span>
+                  </div>
+                  <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <div id="dash-progress-bar" class="h-full bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full" style="width: 91%"></div>
+                  </div>
+                  <div class="pt-1">
+                    <span id="dash-stage-badge" class="inline-block px-3 py-1 rounded-full bg-slate-100/90 text-slate-600 text-[11px] font-medium border border-slate-200/60">
+                      Stage: Clause Analysis
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card 2: AI Summary -->
+              <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-[0_2px_14px_rgba(0,0,0,0.03)] space-y-4">
+                <div class="flex items-center justify-between">
+                  <h2 class="text-base font-bold text-slate-900 tracking-tight">AI Summary</h2>
+                  <span id="dash-summary-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">
+                    <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Medium 2.3
+                  </span>
+                </div>
+
+                <div class="space-y-2.5 text-xs divide-y divide-slate-100">
+                  <div class="flex justify-between items-center pt-1 text-slate-500">
+                    <span class="font-medium">Risk Zone:</span>
+                    <span id="dash-risk-zone" class="font-semibold text-slate-900">License / IP & Exclusivity</span>
+                  </div>
+                  <div class="flex justify-between items-center pt-2.5 text-slate-500">
+                    <span class="font-medium">Clause Type:</span>
+                    <span id="dash-clause-type" class="font-semibold text-slate-900">May affect exclusivity rights</span>
+                  </div>
+                  <div class="flex justify-between items-center pt-2.5 text-slate-500">
+                    <span class="font-medium">Impact:</span>
+                    <span id="dash-impact" class="font-semibold text-rose-600">Cross-border conflict flagged</span>
+                  </div>
+                </div>
+
+                <!-- Recommendation Callout -->
+                <div class="p-3.5 rounded-xl bg-slate-50/90 border border-slate-200/70 space-y-1.5">
+                  <div class="flex items-center gap-1.5 text-slate-900 text-xs font-bold">
+                    <svg class="h-3.5 w-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    <span>Recommendation</span>
+                  </div>
+                  <p id="dash-recommendation" class="text-[11px] text-slate-600 leading-relaxed">
+                    Clarify the term &ldquo;limited license&rdquo; or replace with &ldquo;non-exclusive use right&rdquo; to eliminate ambiguity and prevent ground-truth contradiction.
+                  </p>
+                </div>
+
+                <!-- Primary Action Button -->
+                <button onclick="openRewriteModal()" class="w-full py-3 px-4 rounded-xl bg-[#0F172A] hover:bg-black text-white text-xs font-semibold tracking-tight transition-all shadow-sm flex items-center justify-center gap-2">
+                  <span>See Suggested Rewrite</span>
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN (~60% width) -->
+            <div class="lg:col-span-7 space-y-6">
+              
+              <!-- Top Row: 3 Metric Stat Cards -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Pages Analyzed -->
+                <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                  <p class="text-xs font-medium text-slate-500 mb-2">Pages Analyzed</p>
+                  <div class="flex items-baseline gap-3">
+                    <span id="dash-stat-pages" class="text-3xl font-extrabold text-slate-900 tracking-tight">47</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                      +6 pages
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Relevant Precedents -->
+                <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                  <p class="text-xs font-medium text-slate-500 mb-2">Relevant Precedents</p>
+                  <div class="flex items-baseline gap-3">
+                    <span id="dash-stat-precedents" class="text-3xl font-extrabold text-slate-900 tracking-tight">12</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"></path></svg>
+                      +3 cases
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Identified Risks -->
+                <div class="bg-white rounded-2xl border border-slate-200/70 p-5 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                  <p class="text-xs font-medium text-slate-500 mb-2">Identified Risks</p>
+                  <div class="flex items-baseline gap-3">
+                    <span id="dash-stat-risks" class="text-3xl font-extrabold text-slate-900 tracking-tight">5</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"></path></svg>
+                      +2 this week
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Risk Trend Chart Card -->
+              <div class="bg-white rounded-2xl border border-slate-200/70 p-6 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h2 class="text-base font-bold text-slate-900 tracking-tight">AI Risk Trend</h2>
+                    <p class="text-[11px] text-slate-400 font-medium">Monthly volume vs empirical risk exposure</p>
+                  </div>
+                  <div class="flex items-center gap-4 text-xs font-medium">
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-sky-500"></span> Analyzed</span>
+                    <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-rose-500"></span> Risk Exposure</span>
+                  </div>
+                </div>
+
+                <!-- SVG Trend Chart Canvas -->
+                <div class="relative h-60 w-full mt-2">
+                  <div class="absolute right-8 top-6 z-10 flex flex-col items-center">
+                    <div class="bg-rose-50 border border-rose-200 text-rose-600 px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-xs">
+                      Risk exposure: 25%
+                    </div>
+                    <div class="w-px h-5 border-r border-dashed border-rose-300"></div>
+                    <div class="h-2.5 w-2.5 rounded-full bg-rose-500 ring-4 ring-rose-100"></div>
+                  </div>
+
+                  <svg class="w-full h-full" viewBox="0 0 600 200" preserveAspectRatio="none">
+                    <line x1="40" y1="20" x2="580" y2="20" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="40" y1="60" x2="580" y2="60" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="40" y1="100" x2="580" y2="100" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="40" y1="140" x2="580" y2="140" stroke="#F1F5F9" stroke-dasharray="3 3" />
+                    <line x1="40" y1="180" x2="580" y2="180" stroke="#E2E8F0" />
+
+                    <text x="15" y="24" fill="#94A3B8" font-size="11" font-family="sans-serif">40</text>
+                    <text x="15" y="64" fill="#94A3B8" font-size="11" font-family="sans-serif">30</text>
+                    <text x="15" y="104" fill="#94A3B8" font-size="11" font-family="sans-serif">20</text>
+                    <text x="15" y="144" fill="#94A3B8" font-size="11" font-family="sans-serif">10</text>
+                    <text x="20" y="184" fill="#94A3B8" font-size="11" font-family="sans-serif">0</text>
+
+                    <path d="M 500 70 L 535 70 L 535 180 L 500 180 Z" fill="#F43F5E" fill-opacity="0.08" />
+                    <path d="M 60 140 Q 140 100 220 50 T 380 60 T 520 40" fill="none" stroke="#0284C7" stroke-width="2.5" />
+                    <path d="M 60 120 Q 140 70 220 140 T 380 130 T 520 70" fill="none" stroke="#F43F5E" stroke-width="2.5" />
+
+                    <text x="55" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Jan</text>
+                    <text x="130" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Feb</text>
+                    <text x="210" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Mar</text>
+                    <text x="290" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Apr</text>
+                    <text x="370" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">May</text>
+                    <text x="445" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Jun</text>
+                    <text x="515" y="196" fill="#94A3B8" font-size="11" font-family="sans-serif">Jul</text>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Relevant Cases Table Card -->
+              <div class="bg-white rounded-2xl border border-slate-200/70 p-6 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                <div class="flex items-center justify-between mb-4">
+                  <h2 class="text-base font-bold text-slate-900 tracking-tight">Relevant Cases</h2>
+                  <button onclick="navigate('history')" class="text-xs font-semibold text-slate-500 hover:text-slate-900">View all cases</button>
+                </div>
+
+                <table class="w-full text-left text-xs">
+                  <thead>
+                    <tr class="text-slate-400 border-b border-slate-100">
+                      <th class="pb-3 font-medium">Case Name ↕</th>
+                      <th class="pb-3 font-medium">Jurisdiction</th>
+                      <th class="pb-3 font-medium">Year ↕</th>
+                      <th class="pb-3 font-medium text-right">Risk Level</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    <tr class="hover:bg-slate-50 transition-colors">
+                      <td class="py-3.5 font-bold text-slate-900">Nova Systems Corp</td>
+                      <td class="py-3.5"><span class="font-medium text-slate-600">🇬🇧 UK</span></td>
+                      <td class="py-3.5 font-mono text-slate-500">2025</td>
+                      <td class="py-3.5 text-right">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">High Risk</span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                      <td class="py-3.5 font-bold text-slate-900">Confidentiality Clause Dispute</td>
+                      <td class="py-3.5"><span class="font-medium text-slate-600">🇪🇺 EU</span></td>
+                      <td class="py-3.5 font-mono text-slate-500">2022</td>
+                      <td class="py-3.5 text-right">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 border border-emerald-100">Low Risk</span>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                      <td class="py-3.5 font-bold text-slate-900">TechSoft vs. Orion Ltd</td>
+                      <td class="py-3.5"><span class="font-medium text-slate-600">🇬🇧 UK</span></td>
+                      <td class="py-3.5 font-mono text-slate-500">2024</td>
+                      <td class="py-3.5 text-right">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-600 border border-amber-100">Medium Risk</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= VIEW 2: VERIFY CLAIMS ================= -->
+        <div id="view-verify" class="view-panel hidden space-y-6">
+          
+          <!-- Shuffle Button & Scenario Pills Bar -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900 tracking-tight">Claim Verification Engine</h2>
+              <p class="text-xs text-slate-500">Select any test case idea below or click Shuffle to test another file.</p>
+            </div>
+            <button onclick="shuffleScenario()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm transition-all shrink-0">
+              <span>✨ 🎲 Shuffle Test Idea</span>
+            </button>
+          </div>
+
+          <!-- Scenario Pills Bar -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 shrink-0 mr-1">Test Ideas:</span>
+            <button onclick="selectScenarioByIndex(0)" id="pill-0" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-slate-900 text-white shadow-xs">
+              📄 NDA & IP Rights
+            </button>
+            <button onclick="selectScenarioByIndex(1)" id="pill-1" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50">
+              📊 SEC 10-K Audit
+            </button>
+            <button onclick="selectScenarioByIndex(2)" id="pill-2" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50">
+              💊 Clinical Trial
+            </button>
+            <button onclick="selectScenarioByIndex(3)" id="pill-3" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50">
+              🛡️ Cyber Threat Intel
+            </button>
+            <button onclick="selectScenarioByIndex(4)" id="pill-4" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50">
+              🚗 AI Patent Prior Art
+            </button>
+            <button onclick="selectScenarioByIndex(5)" id="pill-5" class="scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50">
+              🌱 ESG Carbon Neutrality
+            </button>
+          </div>
+
+          <!-- Active Test Scenario Notification Banner -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200/70 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div id="banner-number" class="h-8 w-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">1</div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="banner-title" class="text-xs font-bold text-slate-900">NDA & IP Exclusivity Claims</span>
+                  <span id="banner-domain" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold border border-emerald-100">Legal / Contracts</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                  Ground Truth File: <span id="banner-doc-name" class="font-semibold text-slate-800">NDA_v3.2_Draft.pdf</span>
+                </p>
+              </div>
+            </div>
+            <button onclick="executeVerification()" class="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-black text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 shrink-0">
+              <span>⚡ Quick Verify This Idea</span>
+            </button>
+          </div>
+
+          <!-- 3-Step Container -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Step 1 -->
+            <div class="lg:col-span-7 bg-white border border-slate-200/70 rounded-2xl p-6 shadow-[0_2px_14px_rgba(0,0,0,0.03)] flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <span class="h-6 w-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold">1</span>
+                    <label class="text-xs font-bold text-slate-900 uppercase tracking-wider">AI-Generated Claims To Verify</label>
+                  </div>
+                </div>
+                <textarea id="verify-input" rows="7" class="w-full bg-slate-50/70 border border-slate-200/80 rounded-xl p-3.5 text-xs text-slate-900 font-mono leading-relaxed resize-none"></textarea>
+              </div>
+              <div class="mt-3 flex justify-between text-[11px] text-slate-400">
+                <span>Decomposed into discrete assertions automatically.</span>
+                <button onclick="document.getElementById('verify-input').value=''" class="hover:text-slate-800 font-medium">Clear</button>
+              </div>
+            </div>
+
+            <!-- Step 2 & 3 -->
+            <div class="lg:col-span-5 flex flex-col gap-4">
+              <div class="bg-white border border-slate-200/70 rounded-2xl p-6 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold">2</span>
+                  <label class="text-xs font-bold text-slate-900 uppercase tracking-wider">Ground Truth Source</label>
+                </div>
+                <select id="verify-doc-select" onchange="selectScenarioByIndex(this.value)" class="w-full bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900">
+                  <option value="0">📄 NDA_v3.2_Draft.pdf</option>
+                  <option value="1">📊 SEC_10K_Alphabet_2024.pdf</option>
+                  <option value="2">💊 BioPharma_Phase3_Cardiovascular_Trial.pdf</option>
+                  <option value="3">🛡️ Cyber_SecOps_Global_Incident_Report_2026.pdf</option>
+                  <option value="4">🚗 Patent_AI_Autonomous_Driving_US11492.pdf</option>
+                  <option value="5">🌱 GreenTech_ESG_Carbon_Neutrality_2026.pdf</option>
+                </select>
+              </div>
+
+              <div class="bg-white border border-slate-200/70 rounded-2xl p-6 shadow-[0_2px_14px_rgba(0,0,0,0.03)]">
+                <div class="flex items-center gap-2 mb-3">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900 text-white flex items-center justify-center text-xs font-bold">3</span>
+                  <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Execute Verification</span>
+                </div>
+                <button onclick="executeVerification()" id="btn-verify-exec" class="w-full py-3.5 px-4 rounded-xl bg-[#0F172A] hover:bg-black text-white font-bold text-xs tracking-wide transition-all shadow-sm">
+                  Verify Claims Against Source
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Claims List -->
+          <div class="space-y-4 pt-4 border-t border-slate-200">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Extracted Claims & Factual Verdicts</h3>
+            <div id="claims-container" class="space-y-3">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= OTHER VIEWS ================= -->
+        <div id="view-documents" class="view-panel hidden bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 mb-2">Documents Library (6 Test Files Ready)</h2>
+          <p class="text-xs text-slate-500 mb-4">Authoritative enterprise ground-truth documents across 6 diverse industries.</p>
+          <div id="docs-list" class="space-y-3"></div>
+        </div>
+
+        <div id="view-evidence" class="view-panel hidden bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 mb-2">Evidence Matrix</h2>
+          <p class="text-xs text-slate-500 mb-4">Cross-examination citations extracted directly from source documents.</p>
+          <div id="evidence-list" class="space-y-3"></div>
+        </div>
+
+        <div id="view-reports" class="view-panel hidden bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 mb-2">Compliance Reports</h2>
+          <p class="text-xs text-slate-500">Official audit dossiers ready for PDF export.</p>
+        </div>
+
+        <div id="view-history" class="view-panel hidden bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 mb-2">Audit Session History</h2>
+          <p class="text-xs text-slate-500">Historical claim verification sessions and logs.</p>
+        </div>
+
+        <div id="view-settings" class="view-panel hidden bg-white rounded-2xl border border-slate-200/70 p-6 shadow-sm">
+          <h2 class="text-base font-bold text-slate-900 mb-2">Auditor Settings</h2>
+          <p class="text-xs text-slate-500">Manage credentials and connected AI verification engines.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SUGGESTED REWRITE ================= -->
+  <div id="modal-rewrite" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-sm font-bold text-slate-900">AI Suggested Compliant Rewrite</h3>
+          <p class="text-[11px] text-slate-500">Eliminates empirical contradiction against ground truth</p>
+        </div>
+        <button onclick="closeRewriteModal()" class="text-slate-400 hover:text-slate-700">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-wider text-rose-600 mb-1">Original Flagged Statement:</p>
+          <div id="modal-original-text" class="p-3 rounded-xl bg-rose-50/60 border border-rose-100 text-xs text-rose-950 font-medium"></div>
+        </div>
+
+        <div>
+          <p class="text-[11px] font-bold uppercase tracking-wider text-emerald-600 mb-1">Suggested Compliant Rewrite:</p>
+          <div id="modal-rewrite-text" class="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100 text-xs text-emerald-950 font-medium leading-relaxed"></div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <button onclick="closeRewriteModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100">Dismiss</button>
+        <button onclick="copyRewriteText()" id="btn-copy-rewrite" class="px-4 py-2 rounded-xl bg-[#0F172A] hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+          Copy Compliant Rewrite
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DOCUMENT PREVIEW ================= -->
+  <div id="modal-preview" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-2xl w-full p-6 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 id="modal-preview-title" class="text-sm font-bold text-slate-900">Document Ground Truth Preview</h3>
+          <p id="modal-preview-subtitle" class="text-[11px] text-slate-500">SHA-256 Verified Primary Source Text</p>
+        </div>
+        <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-700">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div id="modal-preview-body" class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-700 max-h-80 overflow-y-auto space-y-2 leading-relaxed"></div>
+
+      <div class="flex justify-end pt-2">
+        <button onclick="closePreviewModal()" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-black">Close Preview</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // 6 Full Real-World Benchmark Scenarios
+    const SCENARIOS = [
+      {
+        id: 'nda',
+        title: 'NDA & IP Exclusivity Claims',
+        domain: 'Legal / Contracts',
+        docName: 'NDA_v3.2_Draft.pdf',
+        docSize: '1.1 MB',
+        pages: 4,
+        date: '07 Nov 2025',
+        progress: 91,
+        riskZone: 'License / IP & Exclusivity',
+        clauseType: 'May affect exclusivity rights',
+        impact: 'Contradiction: Exclusive licensing assertion',
+        statusBadge: 'Medium 2.3',
+        recommendation: 'Clarify the term "limited license" or replace with "non-exclusive use right" to eliminate ambiguity and prevent ground-truth contradiction.',
+        originalText: 'The licensee retains a limited worldwide exclusive right to monetize all telemetry derivatives generated by the host platform.',
+        rewriteText: 'The Company provides a revocable, non-exclusive use right to the designated audit telemetry data, restricted strictly to internal evaluation purposes and subject to Section 4.2 compliance standards.',
+        inputText: `Key assertions from the Nova Systems partnership brief:
+1. The evaluation agreement is executed between Nova Systems Corp and Veritas Partner Entities.
+2. The confidentiality obligations survive termination and remain binding for three years.
+3. The licensee retains an exclusive worldwide license to commercialize host telemetry derivatives per Section 4.2.
+4. All disputed claims shall be resolved under the jurisdiction of the Singapore International Arbitration Centre.`,
+        claims: [
+          {
+            num: 1,
+            text: 'The evaluation agreement is executed between Nova Systems Corp and Veritas Partner Entities.',
+            verdict: 'SUPPORTED',
+            confidence: 99.4,
+            page: 'Page 1 • Recitals',
+            quote: 'This Mutual Confidentiality and Technical Evaluation Agreement is entered into by and between Nova Systems Corp and Veritas Partner Entities.'
+          },
+          {
+            num: 2,
+            text: 'The confidentiality obligations survive termination and remain binding for three years.',
+            verdict: 'SUPPORTED',
+            confidence: 98.7,
+            page: 'Page 2 • Section 2.1',
+            quote: 'The confidentiality obligations set forth herein shall survive termination and remain binding for three (3) full years following disclosure.'
+          },
+          {
+            num: 3,
+            text: 'The licensee retains an exclusive worldwide license to commercialize host telemetry derivatives per Section 4.2.',
+            verdict: 'CONTRADICTED',
+            confidence: 97.8,
+            page: 'Page 4 • Section 4.2',
+            quote: 'Nothing in this Agreement grants, conveys, or implies any license. All telemetry datasets and intellectual property remain exclusive property of Disclosing Party. Any contrary claims are null and void.'
+          },
+          {
+            num: 4,
+            text: 'All disputed claims shall be resolved under the jurisdiction of the Singapore International Arbitration Centre.',
+            verdict: 'INSUFFICIENT_EVIDENCE',
+            confidence: 94.0,
+            page: 'Out of Scope',
+            quote: 'Governing law is Delaware, USA; SIAC jurisdiction is completely unmentioned.'
+          }
+        ],
+        previewSnippet: `[Page 1 - Recitals]\nThis Mutual Confidentiality and Technical Evaluation Agreement is entered into by and between Nova Systems Corp ("Disclosing Party") and Veritas Partner Entities ("Receiving Party").\n\n[Page 4 - Section 4.2 Intellectual Property]\n"Nothing in this Agreement grants, conveys, or implies any license, patent right, or ownership interest. All telemetry datasets, audit logs, and intellectual property remain the exclusive property of the Disclosing Party. Any contrary interpretations or claims of exclusive monetization rights are expressly null and void. Governing law shall be the State of Delaware, USA."`
+      },
+      {
+        id: 'sec',
+        title: 'SEC 10-K Financial Disclosures',
+        domain: 'Financial / SEC Audit',
+        docName: 'SEC_10K_Alphabet_2024.pdf',
+        docSize: '2.4 MB',
+        pages: 142,
+        date: '31 Oct 2026',
+        progress: 88,
+        riskZone: 'Financial & Revenue Reporting',
+        clauseType: 'Credit Loss & Solvent Ratios',
+        impact: 'Contradiction: NPL ratio false claim',
+        statusBadge: 'High 3.8',
+        recommendation: 'Revise non-performing loan assertion from 18.2% to official 0.72% audited metric on Page 2.',
+        originalText: 'Non-performing loan ratios deteriorated drastically to 18.2% across consumer credit divisions.',
+        rewriteText: 'Non-performing loan (NPL) ratios remained stable at 0.72% of total credit assets, reflecting normalized consumer credit conditions.',
+        inputText: `Executive summary of Q3 financial filings:
+1. Consolidated net revenues reached $18.4 billion, representing a 7.2% growth.
+2. The Common Equity Tier 1 capital ratio stood at 14.8%, exceeding regulatory minimums.
+3. Non-performing loan ratios deteriorated drastically to 18.2% across consumer divisions.
+4. The enterprise completed an acquisition of a quantum cryptography provider for $4.2 billion.`,
+        claims: [
+          {
+            num: 1,
+            text: 'Consolidated net revenues reached $18.4 billion, representing a 7.2% growth.',
+            verdict: 'SUPPORTED',
+            confidence: 99.6,
+            page: 'Page 1 • Statement 1',
+            quote: 'Consolidated net revenues reached $18.4 billion, representing a 7.2% growth compared to Q3 2023.'
+          },
+          {
+            num: 2,
+            text: 'The Common Equity Tier 1 capital ratio stood at 14.8%, exceeding regulatory minimums.',
+            verdict: 'SUPPORTED',
+            confidence: 99.2,
+            page: 'Page 1 • Capital Metrics',
+            quote: 'Common Equity Tier 1 (CET1) capital ratio stood at 14.8%, comfortably exceeding the regulatory requirement of 11.5%.'
+          },
+          {
+            num: 3,
+            text: 'Non-performing loan ratios deteriorated drastically to 18.2% across consumer divisions.',
+            verdict: 'CONTRADICTED',
+            confidence: 98.4,
+            page: 'Page 2 • Credit Risk',
+            quote: 'Non-performing loans (NPL) ratio remained stable at 0.72% of total credit assets.'
+          },
+          {
+            num: 4,
+            text: 'The enterprise completed an acquisition of a quantum cryptography provider for $4.2 billion.',
+            verdict: 'INSUFFICIENT_EVIDENCE',
+            confidence: 92.5,
+            page: 'Out of Scope',
+            quote: 'No quantum cryptography acquisition recorded in Q3 filing ledger.'
+          }
+        ],
+        previewSnippet: `[Page 1 - Consolidated Revenue]\nConsolidated net revenues reached $18.4 billion, representing a 7.2% growth compared to Q3 2023. CET1 stood at 14.8%.\n\n[Page 2 - Credit Assets & Provisions]\nProvision for credit losses was $640 million. Non-performing loans (NPL) ratio remained stable at 0.72% of total credit assets.`
+      },
+      {
+        id: 'pharma',
+        title: 'Cardio-Vex Clinical Trial Phase 3',
+        domain: 'Clinical / Pharma',
+        docName: 'BioPharma_Phase3_Cardiovascular_Trial.pdf',
+        docSize: '1.8 MB',
+        pages: 3,
+        date: '29 Oct 2026',
+        progress: 95,
+        riskZone: 'Clinical Endpoints & Safety',
+        clauseType: 'Adverse Event Disclosure',
+        impact: 'Contradiction: False toxicity claim',
+        statusBadge: 'Critical 4.1',
+        recommendation: 'Remove unsubstantiated acute renal failure assertion; official study confirmed zero cases of acute kidney injury.',
+        originalText: 'Cardio-Vex caused acute renal failure in 24% of treated patients requiring emergency dialysis.',
+        rewriteText: 'Serious adverse events occurred in 4.1% of active treatment patients versus 3.9% in placebo, with no cases of hepatotoxicity or acute kidney injury observed.',
+        inputText: `Clinical trial endpoints for Cardio-Vex 40mg:
+1. A double-blind, randomized, placebo-controlled trial enrolled 4,520 patients across 48 global sites.
+2. Patients receiving Cardio-Vex demonstrated a 28.5% relative risk reduction in MACE compared to placebo.
+3. Cardio-Vex caused acute renal failure in 24% of treated patients requiring emergency dialysis.
+4. Serious adverse events occurred in 4.1% of active treatment patients versus 3.9% in placebo.`,
+        claims: [
+          {
+            num: 1,
+            text: 'A double-blind, randomized, placebo-controlled trial enrolled 4,520 patients across 48 global sites.',
+            verdict: 'SUPPORTED',
+            confidence: 99.8,
+            page: 'Page 1 • Study Protocol',
+            quote: 'A double-blind, randomized, placebo-controlled trial enrolled 4,520 patients across 48 global sites.'
+          },
+          {
+            num: 2,
+            text: 'Patients receiving Cardio-Vex demonstrated a 28.5% relative risk reduction in MACE compared to placebo.',
+            verdict: 'SUPPORTED',
+            confidence: 99.5,
+            page: 'Page 2 • Primary Endpoint',
+            quote: 'Patients receiving Cardio-Vex demonstrated a 28.5% relative risk reduction in MACE compared to placebo (p < 0.001).'
+          },
+          {
+            num: 3,
+            text: 'Cardio-Vex caused acute renal failure in 24% of treated patients requiring emergency dialysis.',
+            verdict: 'CONTRADICTED',
+            confidence: 99.1,
+            page: 'Page 3 • Safety Table',
+            quote: 'No cases of hepatotoxicity or acute kidney injury were observed.'
+          },
+          {
+            num: 4,
+            text: 'Serious adverse events occurred in 4.1% of active treatment patients versus 3.9% in placebo.',
+            verdict: 'SUPPORTED',
+            confidence: 99.0,
+            page: 'Page 3 • Adverse Outcomes',
+            quote: 'Serious adverse events occurred in 4.1% of active treatment patients versus 3.9% in the placebo cohort.'
+          }
+        ],
+        previewSnippet: `[Page 1 - Trial Cohort]\nA double-blind, randomized, placebo-controlled trial enrolled 4,520 patients across 48 global sites.\n\n[Page 3 - Safety & Adverse Events]\nSerious adverse events occurred in 4.1% of active treatment patients versus 3.9% in the placebo cohort. No cases of hepatotoxicity or acute kidney injury were observed.`
+      },
+      {
+        id: 'cyber',
+        title: 'Cybersecurity Threat Intelligence Brief',
+        domain: 'Cybersecurity / SecOps',
+        docName: 'Cyber_SecOps_Global_Incident_Report_2026.pdf',
+        docSize: '2.4 MB',
+        pages: 4,
+        date: '30 Oct 2026',
+        progress: 94,
+        riskZone: 'Threat Intel & Zero Trust',
+        clauseType: 'Extortion & Backup Metrics',
+        impact: 'Contradiction: Extortion trend claim',
+        statusBadge: 'Medium 2.7',
+        recommendation: 'Correct ransom payment statement; immutable backup adoption drove a 31% drop in total extortion payments.',
+        originalText: 'Total ransom payments skyrocketed by 45% because enterprises abandoned immutable backup systems.',
+        rewriteText: 'Total ransom payments dropped by 31% as enterprise immutable backup compliance reached 87% across audited Fortune 500 organizations.',
+        inputText: `Q3 Threat Intelligence operational findings:
+1. Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.
+2. The financial sector accounted for 38% of all targeted intrusions.
+3. Total ransom payments skyrocketed by 45% because enterprises abandoned immutable backup systems.
+4. All federal agencies and contractors must enforce MFA with FIDO2 hardware keys by December 2026.
+5. Inbound natural language payload inspection filtered 94.6% of malicious email lures.`,
+        claims: [
+          {
+            num: 1,
+            text: 'Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.',
+            verdict: 'SUPPORTED',
+            confidence: 99.4,
+            page: 'Page 1 • Executive Summary',
+            quote: 'Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.'
+          },
+          {
+            num: 2,
+            text: 'The financial sector accounted for 38% of all targeted intrusions.',
+            verdict: 'SUPPORTED',
+            confidence: 98.9,
+            page: 'Page 1 • Targeted Vectors',
+            quote: 'The financial sector accounted for 38% of all targeted intrusions, followed by healthcare at 22%.'
+          },
+          {
+            num: 3,
+            text: 'Total ransom payments skyrocketed by 45% because enterprises abandoned immutable backup systems.',
+            verdict: 'CONTRADICTED',
+            confidence: 98.2,
+            page: 'Page 1 • Extortion Metrics',
+            quote: 'Total ransom payments dropped by 31% as enterprise immutable backup compliance reached 87%.'
+          },
+          {
+            num: 4,
+            text: 'All federal agencies and contractors must enforce MFA with FIDO2 hardware keys by December 2026.',
+            verdict: 'SUPPORTED',
+            confidence: 99.1,
+            page: 'Page 2 • Zero Trust',
+            quote: 'All federal agencies and contractors must enforce multi-factor authentication (MFA) with FIDO2 hardware keys by December 2026.'
+          },
+          {
+            num: 5,
+            text: 'Inbound natural language payload inspection filtered 94.6% of malicious email lures.',
+            verdict: 'SUPPORTED',
+            confidence: 98.6,
+            page: 'Page 3 • LLM Phishing',
+            quote: 'Inbound natural language payload inspection filtered 94.6% of malicious email lures prior to inbox delivery.'
+          }
+        ],
+        previewSnippet: `[Page 1 - Executive Summary]\nTotal ransomware attacks rose by 14.2%. Financial accounted for 38%. Total ransom payments dropped by 31% as backup compliance reached 87%.\n\n[Page 2 - Zero Trust]\nAll contractors must enforce MFA with FIDO2 hardware keys by December 2026.`
+      },
+      {
+        id: 'patent',
+        title: 'Autonomous Driving AI Patent Claims',
+        domain: 'Patent / Intellectual Property',
+        docName: 'Patent_AI_Autonomous_Driving_US11492.pdf',
+        docSize: '3.2 MB',
+        pages: 3,
+        date: '27 Oct 2026',
+        progress: 89,
+        riskZone: 'Autonomous Perception Architecture',
+        clauseType: 'Emergency Arrest Redundancy',
+        impact: 'Contradiction: Cloud dependency claim',
+        statusBadge: 'High 3.2',
+        recommendation: 'Align emergency arrest assertions with Claim 7; emergency stop operates on local triple-redundant neural voting without cloud reliance.',
+        originalText: 'The fail-safe emergency arrest protocol relies solely on cloud-based remote operator commands.',
+        rewriteText: 'When sensor inputs degrade by more than 30%, the system initiates a triple-redundant local neural voting protocol to bring the vehicle to a safe stop without external cloud connectivity.',
+        inputText: `Technical assertions regarding US Patent 11,492,801:
+1. The perception module fuses 64-channel solid-state LiDAR with stereoscopic cameras at 60 Hz.
+2. Mean obstacle collision prediction latency is strictly under 12 milliseconds from photon arrival.
+3. The fail-safe emergency arrest protocol relies solely on cloud-based remote operator commands.
+4. The patent grants indefinite global monopoly rights over all neural network architectures.`,
+        claims: [
+          {
+            num: 1,
+            text: 'The perception module fuses 64-channel solid-state LiDAR with stereoscopic cameras at 60 Hz.',
+            verdict: 'SUPPORTED',
+            confidence: 99.3,
+            page: 'Page 1 • Abstract',
+            quote: 'An on-vehicle embedded perception system combines 64-channel solid-state LiDAR point clouds with stereoscopic cameras at 60 Hz sampling rate.'
+          },
+          {
+            num: 2,
+            text: 'Mean obstacle collision prediction latency is strictly under 12 milliseconds from photon arrival.',
+            verdict: 'SUPPORTED',
+            confidence: 99.0,
+            page: 'Page 2 • Claim 1',
+            quote: 'Claim 1: An autonomous perception module wherein mean obstacle collision prediction latency is strictly under 12 milliseconds.'
+          },
+          {
+            num: 3,
+            text: 'The fail-safe emergency arrest protocol relies solely on cloud-based remote operator commands.',
+            verdict: 'CONTRADICTED',
+            confidence: 98.7,
+            page: 'Page 3 • Claim 7',
+            quote: 'Claim 7: The safety arrest protocol does not require external cloud connectivity, preventing single-point telemetry failures.'
+          },
+          {
+            num: 4,
+            text: 'The patent grants indefinite global monopoly rights over all neural network architectures.',
+            verdict: 'INSUFFICIENT_EVIDENCE',
+            confidence: 93.0,
+            page: 'Out of Scope',
+            quote: 'Patent scope limited strictly to disclosed sensor fusion dynamic trajectory algorithms.'
+          }
+        ],
+        previewSnippet: `[Page 2 - Claim 1 Latency]\nMean obstacle collision prediction latency is strictly under 12 milliseconds from photon arrival.\n\n[Page 3 - Claim 7 Emergency Arrest]\nSafety arrest protocol initiates triple-redundant local neural voting and does not require external cloud connectivity.`
+      },
+      {
+        id: 'esg',
+        title: 'ESG & Corporate Carbon Neutrality',
+        domain: 'ESG / Sustainability',
+        docName: 'GreenTech_ESG_Carbon_Neutrality_2026.pdf',
+        docSize: '1.9 MB',
+        pages: 3,
+        date: '26 Oct 2026',
+        progress: 96,
+        riskZone: 'Scope 1-2 Decarbonization',
+        clauseType: 'Direct Abatement vs Offsets',
+        impact: 'Contradiction: Offset purchase trend',
+        statusBadge: 'Low 1.5',
+        recommendation: 'Reflect verified direct decarbonization metrics; offset credit purchases fell 22% as 88% fleet electrification took effect.',
+        originalText: 'Carbon offset credit purchases increased by 300% to compensate for expanding dirty fossil fuel operations.',
+        rewriteText: 'Direct carbon offset purchases decreased by 22% in favor of direct operational abatement and 88% commercial delivery fleet electrification.',
+        inputText: `Sustainability and emissions disclosure claims:
+1. Scope 1 and Scope 2 operational greenhouse gas emissions decreased by 41.5% from 2022 baseline.
+2. 100% of global corporate data centers are powered by certified renewable electricity contracts.
+3. Corporate delivery fleet electrification reached 88%, reducing annual diesel fuel by 4.2 million gallons.
+4. Carbon offset credit purchases increased by 300% to compensate for expanding dirty fossil fuel operations.`,
+        claims: [
+          {
+            num: 1,
+            text: 'Scope 1 and Scope 2 operational greenhouse gas emissions decreased by 41.5% from 2022 baseline.',
+            verdict: 'SUPPORTED',
+            confidence: 99.7,
+            page: 'Page 1 • Executive Disclosure',
+            quote: 'Scope 1 and Scope 2 operational greenhouse gas emissions decreased by 41.5% compared to the 2022 audited baseline.'
+          },
+          {
+            num: 2,
+            text: '100% of global corporate data centers are powered by certified renewable electricity contracts.',
+            verdict: 'SUPPORTED',
+            confidence: 99.4,
+            page: 'Page 2 • Renewable PPAs',
+            quote: '100% of global corporate data centers and operational facilities are powered by certified renewable electricity contracts.'
+          },
+          {
+            num: 3,
+            text: 'Corporate delivery fleet electrification reached 88%, reducing annual diesel fuel by 4.2 million gallons.',
+            verdict: 'SUPPORTED',
+            confidence: 98.9,
+            page: 'Page 2 • Fleet Transition',
+            quote: 'Corporate delivery fleet electrification reached 88%, resulting in an annual diesel fuel reduction of 4.2 million gallons.'
+          },
+          {
+            num: 4,
+            text: 'Carbon offset credit purchases increased by 300% to compensate for expanding dirty fossil fuel operations.',
+            verdict: 'CONTRADICTED',
+            confidence: 98.1,
+            page: 'Page 2 • Offset Ledger',
+            quote: 'Direct carbon offset purchases decreased by 22% in favor of direct abatement.'
+          }
+        ],
+        previewSnippet: `[Page 1 - Decarbonization Disclosure]\nScope 1 and Scope 2 emissions decreased by 41.5% from 2022 baseline.\n\n[Page 2 - Renewable Contracts & Fleet]\n100% data centers renewable. Fleet electrification reached 88%. Direct offset purchases decreased by 22%.`
+      }
+    ];
+
+    let currentScenarioIndex = 0;
+
+    function selectScenarioByIndex(idx) {
+      idx = parseInt(idx, 10);
+      if (idx < 0 || idx >= SCENARIOS.length) idx = 0;
+      currentScenarioIndex = idx;
+      const s = SCENARIOS[idx];
+
+      // Update Dashboard elements
+      document.getElementById('dash-doc-select').value = idx;
+      document.getElementById('dash-doc-name').innerText = s.docName;
+      document.getElementById('dash-doc-meta').innerText = 'PDF • ' + s.docSize + ' • ' + s.pages + ' pages';
+      document.getElementById('dash-analyzed-date').innerText = s.date;
+      document.getElementById('dash-progress-text').innerText = s.progress + '% complete';
+      document.getElementById('dash-progress-bar').style.width = s.progress + '%';
+      document.getElementById('dash-stage-badge').innerText = 'Stage: ' + s.clauseType;
+
+      document.getElementById('dash-summary-badge').innerHTML = `
+        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        ${s.statusBadge}
+      `;
+      document.getElementById('dash-risk-zone').innerText = s.riskZone;
+      document.getElementById('dash-clause-type').innerText = s.clauseType;
+      document.getElementById('dash-impact').innerText = s.impact;
+      document.getElementById('dash-recommendation').innerText = s.recommendation;
+      document.getElementById('modal-original-text').innerText = s.originalText;
+      document.getElementById('modal-rewrite-text').innerText = s.rewriteText;
+
+      // Update Verification View elements
+      document.getElementById('verify-input').value = s.inputText;
+      document.getElementById('verify-doc-select').value = idx;
+      document.getElementById('banner-number').innerText = idx + 1;
+      document.getElementById('banner-title').innerText = s.title;
+      document.getElementById('banner-domain').innerText = s.domain;
+      document.getElementById('banner-doc-name').innerText = s.docName;
+
+      // Update Scenario Pills
+      document.querySelectorAll('.scenario-pill').forEach((pill, pIdx) => {
+        if (pIdx === idx) {
+          pill.className = "scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-slate-900 text-white shadow-xs";
+        } else {
+          pill.className = "scenario-pill px-3 py-1.5 rounded-xl text-xs font-semibold shrink-0 bg-white text-slate-700 border border-slate-200/80 hover:bg-slate-50";
+        }
+      });
+
+      // Render Claims List
+      renderClaims(s.claims);
+
+      // Update Preview Modal
+      document.getElementById('modal-preview-title').innerText = 'Document Preview: ' + s.docName;
+      document.getElementById('modal-preview-subtitle').innerText = s.pages + ' Pages • ' + s.domain + ' Ground Truth';
+      document.getElementById('modal-preview-body').innerText = s.previewSnippet;
+    }
+
+    function shuffleScenario() {
+      const nextIndex = (currentScenarioIndex + 1) % SCENARIOS.length;
+      selectScenarioByIndex(nextIndex);
+    }
+
+    function renderClaims(claims) {
+      const container = document.getElementById('claims-container');
+      container.innerHTML = '';
+
+      claims.forEach((c) => {
+        const isSupported = c.verdict === 'SUPPORTED';
+        const isContradicted = c.verdict === 'CONTRADICTED';
+
+        const badgeClass = isSupported
+          ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+          : isContradicted
+          ? 'bg-rose-50 text-rose-600 border-rose-100'
+          : 'bg-amber-50 text-amber-700 border-amber-100';
+
+        const quoteBorder = isSupported
+          ? 'border-emerald-500 bg-emerald-50/50 text-emerald-950'
+          : isContradicted
+          ? 'border-rose-500 bg-rose-50/50 text-rose-950'
+          : 'border-amber-400 bg-amber-50/50 text-amber-950';
+
+        const card = document.createElement('div');
+        card.className = "bg-white border border-slate-200/70 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-2.5 transition-all";
+        card.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">Claim #${c.num}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${c.verdict}</span>
+              <span class="text-xs text-slate-400 font-mono">Confidence: ${c.confidence}%</span>
+            </div>
+            <span class="text-xs text-slate-500 font-medium">${c.page}</span>
+          </div>
+          <p class="text-sm font-semibold text-slate-900">&ldquo;${c.text}&rdquo;</p>
+          <div class="p-3 rounded-xl border-l-4 text-xs font-mono leading-relaxed ${quoteBorder}">
+            <span class="font-bold">Verified Ground Truth Quote:</span> &ldquo;${c.quote}&rdquo;
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function executeVerification() {
+      const btn = document.getElementById('btn-verify-exec');
+      btn.innerText = 'Auditing Citations & Extracting Quotes...';
+      btn.classList.add('opacity-75');
+
+      setTimeout(() => {
+        btn.innerText = 'Verify Claims Against Source';
+        btn.classList.remove('opacity-75');
+        const s = SCENARIOS[currentScenarioIndex];
+        renderClaims(s.claims);
+        alert(`Verification Completed for "${s.title}"! Analyzed ${s.claims.length} claims against ${s.docName}.`);
+      }, 400);
+    }
+
+    function renderDocsLibrary() {
+      const list = document.getElementById('docs-list');
+      if (!list) return;
+      list.innerHTML = '';
+      SCENARIOS.forEach((s, idx) => {
+        const item = document.createElement('div');
+        item.className = "p-4 rounded-xl border border-slate-200 flex justify-between items-center hover:bg-slate-50 transition-colors";
+        item.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <p class="text-xs font-bold text-slate-900">${s.docName}</p>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono">${s.domain}</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-0.5">${s.pages} pages • ${s.docSize} • Uploaded ${s.date}</p>
+          </div>
+          <button onclick="selectScenarioByIndex(${idx}); navigate('verify')" class="px-3 py-1.5 rounded-xl bg-[#0F172A] hover:bg-black text-white text-xs font-semibold">Test In Verifier</button>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function renderEvidenceMatrix() {
+      const list = document.getElementById('evidence-list');
+      if (!list) return;
+      list.innerHTML = '';
+      SCENARIOS.forEach((s) => {
+        s.claims.forEach((c) => {
+          const item = document.createElement('div');
+          item.className = "p-4 rounded-xl border border-slate-200 space-y-1.5";
+          item.innerHTML = `
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded">${s.docName} • ${c.page}</span>
+              <span class="text-xs font-semibold ${c.verdict === 'SUPPORTED' ? 'text-emerald-600' : c.verdict === 'CONTRADICTED' ? 'text-rose-600' : 'text-amber-600'}">${c.verdict}</span>
+            </div>
+            <p class="text-xs font-mono text-slate-700 bg-slate-50 p-2.5 rounded-lg">&ldquo;${c.quote}&rdquo;</p>
+          `;
+          list.appendChild(item);
+        });
+      });
+    }
+
+    function navigate(viewId) {
+      document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
+      const activeView = document.getElementById('view-' + viewId);
+      if (activeView) activeView.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.06] transition-all";
+        const icon = btn.querySelector('svg');
+        if (icon) icon.className = "h-4 w-4 shrink-0 text-slate-400";
+      });
+
+      const activeBtn = document.getElementById('nav-' + viewId);
+      if (activeBtn) {
+        activeBtn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-900 shadow-sm transition-all";
+        const icon = activeBtn.querySelector('svg');
+        if (icon) icon.className = "h-4 w-4 shrink-0 text-slate-900";
+      }
+
+      const titles = {
+        dashboard: 'AI Analysis Overview',
+        verify: 'Claim Verification & Ground Truth',
+        documents: 'Documents & Evidence Library',
+        evidence: 'Evidence Matrix & Quotes',
+        reports: 'Compliance & Audit Reports',
+        history: 'Audit Session History',
+        settings: 'Auditor & Model Settings'
+      };
+      document.getElementById('page-title').innerText = titles[viewId] || 'AI Analysis Overview';
+
+      if (viewId === 'documents') renderDocsLibrary();
+      if (viewId === 'evidence') renderEvidenceMatrix();
+    }
+
+    let isCollapsed = false;
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const brandText = document.getElementById('brand-text');
+      const labels = document.querySelectorAll('.nav-label');
+      const headings = document.querySelectorAll('.sidebar-heading');
+      isCollapsed = !isCollapsed;
+
+      if (isCollapsed) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-16');
+        brandText.classList.add('hidden');
+        labels.forEach(l => l.classList.add('hidden'));
+        headings.forEach(h => h.classList.add('hidden'));
+      } else {
+        sidebar.classList.remove('w-16');
+        sidebar.classList.add('w-64');
+        brandText.classList.remove('hidden');
+        labels.forEach(l => l.classList.remove('hidden'));
+        headings.forEach(h => h.classList.remove('hidden'));
+      }
+    }
+
+    function openRewriteModal() {
+      document.getElementById('modal-rewrite').classList.remove('hidden');
+    }
+    function closeRewriteModal() {
+      document.getElementById('modal-rewrite').classList.add('hidden');
+    }
+
+    function openPreviewModal() {
+      document.getElementById('modal-preview').classList.remove('hidden');
+    }
+    function closePreviewModal() {
+      document.getElementById('modal-preview').classList.add('hidden');
+    }
+
+    function copyRewriteText() {
+      const btn = document.getElementById('btn-copy-rewrite');
+      btn.innerText = 'Copied to Clipboard!';
+      setTimeout(() => { btn.innerText = 'Copy Compliant Rewrite'; }, 2000);
+    }
+
+    // Initialize with first scenario
+    window.addEventListener('DOMContentLoaded', () => {
+      selectScenarioByIndex(0);
+      renderDocsLibrary();
+      renderEvidenceMatrix();
+    });
+  </script>
+</body>
+</html>
