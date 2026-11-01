@@ -9,6 +9,15 @@ export interface FraudAnalysis {
   flagReason: string;
 }
 
+export interface TransparentAssessment {
+  nlpDecomposition: string;
+  semanticSearchRank: number;
+  sourceCredibility: string;
+  credibilityScore: number;
+  evidenceRankingScore: number;
+  reasoningPipeline: string[];
+}
+
 export interface EvidenceSnippet {
   id: string;
   quote: string;
@@ -16,6 +25,9 @@ export interface EvidenceSnippet {
   page: number | null;
   type: 'supporting' | 'contradicting';
   confidence: number;
+  sourceCredibilityScore?: number;
+  credibilityTier?: string;
+  evidenceRank?: number;
 }
 
 export interface Claim {
@@ -31,6 +43,7 @@ export interface Claim {
   sourceDocumentName: string;
   verifiedAt: string;
   fraudDetection?: FraudAnalysis;
+  transparentAssessment?: TransparentAssessment;
 }
 
 export interface DocumentPage {

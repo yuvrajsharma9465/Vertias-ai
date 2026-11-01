@@ -26,7 +26,7 @@ export const Navbar: React.FC = () => {
       case '/':
         return 'AI Analysis Overview';
       case '/verify':
-        return 'Claim Verification & Ground Truth';
+        return 'VerifyAI: Misinformation & Claim Verification';
       case '/documents':
         return 'Documents & Evidence Library';
       case '/evidence':

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Verdict, SourceDocument } from '@/lib/types';
-import { extractAtomicClaims, verifyClaimAgainstDocument, analyzeFraudRisk } from '@/lib/verificationEngine';
+import { extractAtomicClaims, verifyClaimAgainstDocument, analyzeFraudRisk, buildTransparentAssessment } from '@/lib/verificationEngine';
 
 interface DocumentPage {
   page: number;
@@ -194,6 +194,7 @@ ${inputText.slice(0, 10000)}`;
       const claimText = atomicClaims[i];
       const match = verifyClaimAgainstDocument(claimText, tempDoc);
       const fraudDetection = analyzeFraudRisk(claimText, match.verdict, match.evidence);
+      const transparentAssessment = buildTransparentAssessment(claimText, match.verdict, match, tempDoc);
 
       claims.push({
         id: `cl-${Date.now()}-${i + 1}`,
@@ -208,6 +209,7 @@ ${inputText.slice(0, 10000)}`;
         sourceDocumentName: documentName || 'Ground_Truth.pdf',
         verifiedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
         fraudDetection,
+        transparentAssessment,
       });
     }
 

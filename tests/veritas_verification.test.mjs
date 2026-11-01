@@ -4,6 +4,7 @@ import {
   extractAtomicClaims,
   verifyClaimAgainstDocument,
   analyzeFraudRisk,
+  buildTransparentAssessment,
   INITIAL_DOCUMENTS,
   PRESET_INPUTS
 } from '../src/lib/verificationEngine.ts';
@@ -148,4 +149,20 @@ test('7. Benchmark Scenario Alignment: All 6 benchmark scenarios match their gro
       }
     }
   }
+});
+
+test('8. Transparent Assessment Engine: Validates non-blackbox RAG reasoning pipeline and credibility tiers', () => {
+  const claim = 'Consolidated net revenues reached $18.4 billion, representing a 7.2% growth.';
+  const res = verifyClaimAgainstDocument(claim, finDoc);
+  const assessment = buildTransparentAssessment(claim, res.verdict, res, finDoc);
+
+  assert.strictEqual(assessment.semanticSearchRank, 1);
+  assert.ok(assessment.sourceCredibility.includes('SEC'));
+  assert.strictEqual(assessment.credibilityScore, 99);
+  assert.ok(assessment.evidenceRankingScore >= 90);
+  assert.strictEqual(assessment.reasoningPipeline.length, 4);
+  assert.ok(assessment.reasoningPipeline[0].includes('NLP Extraction'));
+  assert.ok(assessment.reasoningPipeline[1].includes('Semantic Search'));
+  assert.ok(assessment.reasoningPipeline[2].includes('Evidence Ranking'));
+  assert.ok(assessment.reasoningPipeline[3].includes('Transparent Assessment'));
 });

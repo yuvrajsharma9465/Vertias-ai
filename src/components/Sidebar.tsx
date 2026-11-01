@@ -125,14 +125,22 @@ export const Sidebar: React.FC = () => {
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-950/40">
                 <ShieldCheck className="h-4 w-4" />
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm tracking-tight text-white">
-                  Veritas<span className="text-emerald-400">AI</span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-sm tracking-tight text-white">
+                    Verify<span className="text-emerald-400">AI</span>
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 font-mono font-bold border border-emerald-500/20">
+                    RAG
+                  </span>
+                </div>
+                <span className="text-[9px] text-slate-400 tracking-tight">
+                  Misinformation & Claim Verifier
                 </span>
               </div>
             </Link>
           ) : (
-            <Link href="/" className="mx-auto" title="Veritas AI">
+            <Link href="/" className="mx-auto" title="VerifyAI: Misinformation and Claim Verification Assistant">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white">
                 <ShieldCheck className="h-4 w-4" />
               </div>
