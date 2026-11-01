@@ -1,5 +1,14 @@
 export type Verdict = 'SUPPORTED' | 'CONTRADICTED' | 'INSUFFICIENT_EVIDENCE';
 
+export type FraudRiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface FraudAnalysis {
+  riskLevel: FraudRiskLevel;
+  fraudScore: number; // 0 - 100
+  fraudCategory: string; // e.g. "Metric Manipulation", "Factual Fabrication", "Phantom Assertion", "Verified Authentic"
+  flagReason: string;
+}
+
 export interface EvidenceSnippet {
   id: string;
   quote: string;
@@ -21,6 +30,7 @@ export interface Claim {
   contradictingEvidence?: string;
   sourceDocumentName: string;
   verifiedAt: string;
+  fraudDetection?: FraudAnalysis;
 }
 
 export interface DocumentPage {

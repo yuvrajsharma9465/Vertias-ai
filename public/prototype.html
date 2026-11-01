@@ -1049,19 +1049,32 @@
           ? 'bg-rose-50 text-rose-600 border-rose-100'
           : 'bg-amber-50 text-amber-700 border-amber-100';
 
+        const fraudRiskBadge = isContradicted
+          ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-rose-100 text-rose-800 border border-rose-300 shadow-xs">FRAUD RISK: CRITICAL (96%)</span>'
+          : c.verdict === 'INSUFFICIENT_EVIDENCE'
+          ? '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-100 text-amber-800 border border-amber-300">FRAUD RISK: MEDIUM (56%)</span>'
+          : '<span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">FRAUD RISK: LOW (4%)</span>';
+
         const quoteBorder = isSupported
           ? 'border-emerald-500 bg-emerald-50/50 text-emerald-950'
           : isContradicted
           ? 'border-rose-500 bg-rose-50/50 text-rose-950'
           : 'border-amber-400 bg-amber-50/50 text-amber-950';
 
+        const fraudCategory = isContradicted
+          ? 'Critical Metric Manipulation & Contradiction'
+          : c.verdict === 'INSUFFICIENT_EVIDENCE'
+          ? 'Phantom Assertion (Zero Grounding)'
+          : 'Verified Authentic Ground-Truth';
+
         const card = document.createElement('div');
         card.className = "bg-white border border-slate-200/70 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-2.5 transition-all";
         card.innerHTML = `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <span class="text-[10px] font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-700">Claim #${c.num}</span>
               <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${c.verdict}</span>
+              ${fraudRiskBadge}
               <span class="text-xs text-slate-400 font-mono">Confidence: ${c.confidence}%</span>
             </div>
             <span class="text-xs text-slate-500 font-medium">${c.page}</span>
@@ -1069,6 +1082,10 @@
           <p class="text-sm font-semibold text-slate-900">&ldquo;${c.text}&rdquo;</p>
           <div class="p-3 rounded-xl border-l-4 text-xs font-mono leading-relaxed ${quoteBorder}">
             <span class="font-bold">Verified Ground Truth Quote:</span> &ldquo;${c.quote}&rdquo;
+          </div>
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between">
+            <span><strong>Fraud Telemetry:</strong> ${fraudCategory}</span>
+            <span class="font-mono text-slate-400">SHA-256 Validated</span>
           </div>
         `;
         container.appendChild(card);

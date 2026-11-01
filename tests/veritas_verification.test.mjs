@@ -1,111 +1,151 @@
 import test from 'node:test';
 import assert from 'node:assert';
+import {
+  extractAtomicClaims,
+  verifyClaimAgainstDocument,
+  analyzeFraudRisk,
+  INITIAL_DOCUMENTS,
+  PRESET_INPUTS
+} from '../src/lib/verificationEngine.ts';
 
-test('Veritas Verification Unit: Evaluates supported, contradicted, and insufficient claims', async () => {
-  const doc = {
-    id: 'doc-sec-01',
-    name: 'Cyber_SecOps_Global_Incident_Report_2026.pdf',
-    pages: 4,
-    pageTexts: [
-      {
-        page: 1,
-        text: `EXECUTIVE SUMMARY: GLOBAL CYBERSECURITY THREAT INTELLIGENCE (Q3 2026)
-Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year. The financial sector accounted for 38% of all targeted intrusions, followed by healthcare at 22%. Mean time to detect (MTTD) decreased from 48 hours to 19 hours due to automated AI endpoint agents. Total ransom payments dropped by 31% as enterprise immutable backup compliance reached 87%.`
-      },
-      {
-        page: 2,
-        text: `ZERO TRUST ARCHITECTURE AND COMPLIANCE STANDARDS
-All federal agencies and contractors must enforce multi-factor authentication (MFA) with FIDO2 hardware keys by December 2026. Passwords without hardware-bound keys are classified as non-compliant under CMMC 2.0 Level 3.`
+const cyberDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-sec-01');
+const finDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-fin-03');
+const pharmaDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-pharma-02');
+const ndaDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-nda-01');
+const patentDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-patent-04');
+const esgDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-esg-05');
+
+test('1. Multi-Claim Paragraph Splitting: Splits paragraph into discrete atomic factual statements', () => {
+  const paragraph = `Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year. The financial sector accounted for 38% of all targeted intrusions. Total ransom payments skyrocketed by 45% because companies lacked backups. European Union completely banned all endpoint AI agents.`;
+
+  const claims = extractAtomicClaims(paragraph);
+  assert.strictEqual(claims.length, 4, 'Must extract exactly 4 atomic claims from paragraph');
+  assert.ok(claims[0].includes('rose by 14.2%'));
+  assert.ok(claims[1].includes('accounted for 38%'));
+  assert.ok(claims[2].includes('skyrocketed by 45%'));
+  assert.ok(claims[3].includes('European Union'));
+});
+
+test('2. Partially Supported Paragraph: Never marks whole paragraph Supported when only one sentence matches', () => {
+  const partiallySupportedParagraph = `Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year. Total ransom payments skyrocketed by 45% because companies lacked backups. European Union completely banned all endpoint AI agents.`;
+
+  const claims = extractAtomicClaims(partiallySupportedParagraph);
+  assert.strictEqual(claims.length, 3);
+
+  const res1 = verifyClaimAgainstDocument(claims[0], cyberDoc);
+  const res2 = verifyClaimAgainstDocument(claims[1], cyberDoc);
+  const res3 = verifyClaimAgainstDocument(claims[2], cyberDoc);
+
+  assert.strictEqual(res1.verdict, 'SUPPORTED', 'First sentence should be supported');
+  assert.strictEqual(res1.page, 1);
+  assert.ok(res1.evidence.includes('14.2%'));
+
+  assert.strictEqual(res2.verdict, 'CONTRADICTED', 'Second sentence must be contradicted (ransom payments dropped by 31%)');
+  assert.strictEqual(res2.page, 1);
+  assert.ok(res2.evidence.includes('dropped by 31%'));
+
+  assert.strictEqual(res3.verdict, 'INSUFFICIENT_EVIDENCE', 'Third sentence must be insufficient evidence');
+  assert.strictEqual(res3.page, null, 'Insufficient evidence must have null page');
+  assert.strictEqual(res3.evidence, '', 'Insufficient evidence must have empty evidence string');
+});
+
+test('3. Compound Statement Splitting: Handles contrastive conjunctions and clauses', () => {
+  const compoundInput = `Consolidated net revenues reached $18.4 billion, but non-performing loan ratios deteriorated to 18.2%.`;
+
+  const claims = extractAtomicClaims(compoundInput);
+  assert.strictEqual(claims.length, 2, 'Compound sentence with contrastive conjunction must split into 2 claims');
+
+  const res1 = verifyClaimAgainstDocument(claims[0], finDoc);
+  const res2 = verifyClaimAgainstDocument(claims[1], finDoc);
+
+  assert.strictEqual(res1.verdict, 'SUPPORTED');
+  assert.strictEqual(res1.page, 1);
+  assert.ok(res1.evidence.includes('$18.4 billion'));
+
+  assert.strictEqual(res2.verdict, 'CONTRADICTED');
+  assert.strictEqual(res2.page, 2);
+  assert.ok(res2.evidence.includes('0.72%'));
+});
+
+test('4. Exact Quotations and Zero Fabrication: Real page citations only', () => {
+  const claim = `A double-blind, randomized, placebo-controlled trial enrolled 4,520 patients across 48 global sites.`;
+  const result = verifyClaimAgainstDocument(claim, pharmaDoc);
+
+  assert.strictEqual(result.verdict, 'SUPPORTED');
+  assert.strictEqual(result.page, 1);
+  assert.ok(result.evidence.length > 0);
+  assert.ok(pharmaDoc.pageTexts[0].text.includes(result.evidence), 'Evidence must be verbatim excerpt from page 1');
+  assert.ok(result.confidence >= 95.0 && result.confidence <= 100.0, 'Confidence must be deterministic bounded percentage');
+});
+
+test('5. Unsupported Claims: Insufficient evidence without fabricated citations', () => {
+  const phantomClaim = `The enterprise completed an acquisition of a quantum cryptography provider for $4.2 billion.`;
+  const result = verifyClaimAgainstDocument(phantomClaim, finDoc);
+
+  assert.strictEqual(result.verdict, 'INSUFFICIENT_EVIDENCE');
+  assert.strictEqual(result.page, null, 'Must not fabricate a page number');
+  assert.strictEqual(result.evidence, '', 'Must not fabricate quotation');
+  assert.ok(result.explanation.includes('No relevant statements'));
+});
+
+test('6. Fraud Detection Telemetry: Classifies risk level, category, and score', () => {
+  // Contradiction involving manipulated financial metric
+  const fraudFin = analyzeFraudRisk(
+    'Non-performing loan ratios deteriorated to 18.2% across consumer divisions.',
+    'CONTRADICTED',
+    'Non-performing loans (NPL) ratio remained stable at 0.72% of total credit assets.'
+  );
+  assert.strictEqual(fraudFin.riskLevel, 'CRITICAL');
+  assert.ok(fraudFin.fraudScore >= 90);
+  assert.strictEqual(fraudFin.fraudCategory, 'Critical Metric Manipulation');
+
+  // Contradiction involving legal exclusivity
+  const fraudLegal = analyzeFraudRisk(
+    'The licensee retains an exclusive worldwide license to commercialize host telemetry derivatives.',
+    'CONTRADICTED',
+    'Nothing in this Agreement grants any license, and exclusive monetization rights are null and void.'
+  );
+  assert.strictEqual(fraudLegal.riskLevel, 'HIGH');
+  assert.ok(fraudLegal.fraudScore >= 85);
+
+  // Insufficient evidence
+  const fraudPhantom = analyzeFraudRisk(
+    'The European Union completely banned all endpoint AI agents.',
+    'INSUFFICIENT_EVIDENCE',
+    ''
+  );
+  assert.strictEqual(fraudPhantom.riskLevel, 'MEDIUM');
+  assert.strictEqual(fraudPhantom.fraudCategory, 'Phantom Assertion (Zero Grounding)');
+
+  // Supported
+  const fraudSupported = analyzeFraudRisk(
+    'Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.',
+    'SUPPORTED',
+    'Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.'
+  );
+  assert.strictEqual(fraudSupported.riskLevel, 'LOW');
+  assert.ok(fraudSupported.fraudScore < 10);
+});
+
+test('7. Benchmark Scenario Alignment: All 6 benchmark scenarios match their ground-truth documents', () => {
+  for (const preset of PRESET_INPUTS) {
+    const doc = INITIAL_DOCUMENTS.find(d => d.id === preset.documentId);
+    assert.ok(doc, `Ground truth document ${preset.documentId} must exist for preset ${preset.title}`);
+    assert.strictEqual(doc.name, preset.documentName, `Document name must match preset documentName`);
+
+    const claims = extractAtomicClaims(preset.text);
+    assert.ok(claims.length >= 3, `Preset ${preset.title} must parse into at least 3 atomic claims`);
+
+    for (const c of claims) {
+      const res = verifyClaimAgainstDocument(c, doc);
+      assert.ok(['SUPPORTED', 'CONTRADICTED', 'INSUFFICIENT_EVIDENCE'].includes(res.verdict));
+      if (res.verdict === 'INSUFFICIENT_EVIDENCE') {
+        assert.strictEqual(res.page, null);
+        assert.strictEqual(res.evidence, '');
+      } else {
+        assert.ok(typeof res.page === 'number');
+        assert.ok(res.evidence.length > 5);
       }
-    ]
-  };
-
-  function normalizeText(text) {
-    return text.toLowerCase().replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
-  }
-
-  function verify(input, document) {
-    const rawLines = input.split(/\n+/).map(l => l.replace(/^(\d+[\.\)]\s*|[-•*]\s*)/, '').trim()).filter(l => l.length > 10);
-    const results = [];
-
-    for (const claimText of rawLines) {
-      const normClaim = normalizeText(claimText);
-      let verdict = 'INSUFFICIENT_EVIDENCE';
-      let page = null;
-      let evidence = '';
-      let explanation = '';
-
-      for (const p of document.pageTexts) {
-        const pageNorm = normalizeText(p.text);
-        const sentences = p.text.split(/(?<=[.!?])\s+|\n+/).filter(s => s.trim().length > 10);
-
-        for (const sentence of sentences) {
-          const normSentence = normalizeText(sentence);
-          if (normSentence.includes(normClaim) || normClaim.includes(normSentence)) {
-            verdict = 'SUPPORTED';
-            page = p.page;
-            evidence = sentence.trim();
-            explanation = 'Direct verbatim confirmation.';
-            break;
-          }
-
-          const claimWords = claimText.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 3);
-          const sentenceWords = sentence.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 3);
-          const sharedWords = claimWords.filter(w => sentenceWords.some(sw => sw.startsWith(w.slice(0, 4)) || w.startsWith(sw.slice(0, 4))));
-
-          const antonymPairs = [
-            ['rose', 'dropped'],
-            ['increased', 'dropped'],
-            ['increased', 'decreased'],
-            ['skyrocketed', 'stable'],
-          ];
-
-          let conflict = false;
-          for (const [pos, neg] of antonymPairs) {
-            if ((normClaim.includes(pos) && normSentence.includes(neg)) || (normClaim.includes(neg) && normSentence.includes(pos))) {
-              conflict = true;
-              break;
-            }
-          }
-
-          if (conflict && sharedWords.length >= 2) {
-            verdict = 'CONTRADICTED';
-            page = p.page;
-            evidence = sentence.trim();
-            explanation = 'Contradicts source text.';
-            break;
-          }
-
-          if (sharedWords.length >= 3) {
-            verdict = 'SUPPORTED';
-            page = p.page;
-            evidence = sentence.trim();
-            explanation = 'Corroborated by context.';
-            break;
-          }
-        }
-        if (verdict !== 'INSUFFICIENT_EVIDENCE') break;
-      }
-
-      results.push({ claim: claimText, verdict, page, evidence, explanation });
     }
-    return results;
   }
-
-  const sample = `1. Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.
-2. The financial sector accounted for 38% of all targeted intrusions.
-3. Total ransom payments increased by 45% because companies lacked backups.
-4. Federal contractors must enforce FIDO2 hardware keys by December 2026.
-5. European Union completely banned all endpoint AI agents.`;
-
-  const results = verify(sample, doc);
-
-  assert.strictEqual(results.length, 5);
-  assert.strictEqual(results[0].verdict, 'SUPPORTED');
-  assert.strictEqual(results[0].page, 1);
-  assert.strictEqual(results[1].verdict, 'SUPPORTED');
-  assert.strictEqual(results[2].verdict, 'CONTRADICTED');
-  assert.strictEqual(results[3].verdict, 'SUPPORTED');
-  assert.strictEqual(results[3].page, 2);
-  assert.strictEqual(results[4].verdict, 'INSUFFICIENT_EVIDENCE');
 });

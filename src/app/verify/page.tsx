@@ -16,6 +16,9 @@ import {
   Sparkles,
   ExternalLink,
   Layers,
+  ShieldAlert,
+  AlertOctagon,
+  Fingerprint,
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import { PRESET_INPUTS, performVerification } from '@/lib/verificationEngine';
@@ -31,13 +34,18 @@ export default function VerifyPage() {
     settings,
   } = useApp();
 
+  // Synchronize initial scenario mapping with activeSession or default preset 0
+  const initialPresetIndex = activeSession
+    ? Math.max(0, PRESET_INPUTS.findIndex((p) => p.documentId === activeSession.sourceDocumentId))
+    : 0;
+
+  const [selectedPresetIndex, setSelectedPresetIndex] = useState<number>(initialPresetIndex);
   const [inputText, setInputText] = useState(
-    activeSession ? activeSession.inputText : PRESET_INPUTS[0].text
+    activeSession ? activeSession.inputText : PRESET_INPUTS[initialPresetIndex].text
   );
   const [selectedDocId, setSelectedDocId] = useState(
-    activeSession ? activeSession.sourceDocumentId : documents[0]?.id || ''
+    activeSession ? activeSession.sourceDocumentId : PRESET_INPUTS[initialPresetIndex].documentId
   );
-  const [selectedPresetIndex, setSelectedPresetIndex] = useState<number>(0);
   const [isVerifying, setIsVerifying] = useState(false);
   const [expandedClaimId, setExpandedClaimId] = useState<string | null>(
     activeSession?.claims[0]?.id || null
@@ -59,6 +67,15 @@ export default function VerifyPage() {
   const handleShuffleScenario = () => {
     const nextIndex = (selectedPresetIndex + 1) % PRESET_INPUTS.length;
     handleSelectPreset(nextIndex);
+  };
+
+  const handleDocumentChange = (docId: string) => {
+    setSelectedDocId(docId);
+    const matchingPresetIdx = PRESET_INPUTS.findIndex((p) => p.documentId === docId);
+    if (matchingPresetIdx !== -1) {
+      setSelectedPresetIndex(matchingPresetIdx);
+      setInputText(PRESET_INPUTS[matchingPresetIdx].text);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -299,7 +316,7 @@ export default function VerifyPage() {
               <div className="space-y-2.5">
                 <select
                   value={selectedDocId}
-                  onChange={(e) => setSelectedDocId(e.target.value)}
+                  onChange={(e) => handleDocumentChange(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:bg-white focus:border-slate-400 cursor-pointer"
                 >
                   {documents.map((doc) => (
@@ -473,6 +490,24 @@ export default function VerifyPage() {
                           </span>
                         )}
 
+                        {/* Fraud Detection Column / Telemetry Indicator */}
+                        {claim.verdict === 'CONTRADICTED' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 font-bold shadow-xs">
+                            <ShieldAlert className="h-3.5 w-3.5 text-rose-600" />
+                            <span>FRAUD RISK: {claim.fraudDetection?.riskLevel || 'CRITICAL'} ({claim.fraudDetection?.fraudScore || 96}%)</span>
+                          </span>
+                        ) : claim.verdict === 'INSUFFICIENT_EVIDENCE' ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 font-bold">
+                            <AlertOctagon className="h-3.5 w-3.5 text-amber-600" />
+                            <span>FRAUD RISK: {claim.fraudDetection?.riskLevel || 'MEDIUM'} ({claim.fraudDetection?.fraudScore || 56}%)</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                            <span>FRAUD RISK: LOW ({claim.fraudDetection?.fraudScore || 4}%)</span>
+                          </span>
+                        )}
+
                         {/* Confidence Score */}
                         <span className="text-xs font-mono text-slate-500">
                           Confidence: <span className="font-bold text-slate-900">{claim.confidence}%</span>
@@ -578,6 +613,45 @@ export default function VerifyPage() {
                           </blockquote>
                         </div>
                       )}
+
+                      {/* Fraud Detection & Integrity Telemetry Panel */}
+                      <div className={`p-3.5 rounded-xl border flex items-start gap-3 ${
+                        claim.verdict === 'CONTRADICTED'
+                          ? 'bg-rose-50/80 border-rose-300 text-rose-950'
+                          : claim.verdict === 'INSUFFICIENT_EVIDENCE'
+                          ? 'bg-amber-50/80 border-amber-300 text-amber-950'
+                          : 'bg-emerald-50/60 border-emerald-200 text-emerald-950'
+                      }`}>
+                        <Fingerprint className={`h-4 w-4 mt-0.5 shrink-0 ${
+                          claim.verdict === 'CONTRADICTED'
+                            ? 'text-rose-600'
+                            : claim.verdict === 'INSUFFICIENT_EVIDENCE'
+                            ? 'text-amber-600'
+                            : 'text-emerald-600'
+                        }`} />
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between text-xs font-bold">
+                            <span className="flex items-center gap-1.5">
+                              <span>Fraud Detection Scanner:</span>
+                              <span className="font-mono text-slate-800">
+                                {claim.fraudDetection?.fraudCategory || (claim.verdict === 'CONTRADICTED' ? 'Critical Metric Manipulation' : claim.verdict === 'INSUFFICIENT_EVIDENCE' ? 'Phantom Assertion (Zero Grounding)' : 'Verified Authentic Ground-Truth')}
+                              </span>
+                            </span>
+                            <span className={`font-mono text-[11px] px-2 py-0.5 rounded font-bold ${
+                              claim.verdict === 'CONTRADICTED'
+                                ? 'bg-rose-200 text-rose-900 border border-rose-400'
+                                : claim.verdict === 'INSUFFICIENT_EVIDENCE'
+                                ? 'bg-amber-200 text-amber-900 border border-amber-400'
+                                : 'bg-emerald-200 text-emerald-900 border border-emerald-400'
+                            }`}>
+                              Fraud Risk Score: {claim.fraudDetection?.fraudScore || (claim.verdict === 'CONTRADICTED' ? 96 : claim.verdict === 'INSUFFICIENT_EVIDENCE' ? 56 : 4)}/100
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600 leading-relaxed">
+                            {claim.fraudDetection?.flagReason || (claim.verdict === 'CONTRADICTED' ? 'Asserted quantitative metric directly contradicts audited regulatory or clinical safety filings.' : claim.verdict === 'INSUFFICIENT_EVIDENCE' ? 'Claim introduces unverified external assertions with zero empirical corroboration in the source text.' : 'Empirically authenticated against primary source statements with verbatim evidentiary alignment.')}
+                          </p>
+                        </div>
+                      </div>
 
                       {/* Audit Metadata & Actions */}
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px] text-slate-500">

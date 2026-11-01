@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Verdict } from '@/lib/types';
+import { Verdict, SourceDocument } from '@/lib/types';
+import { extractAtomicClaims, verifyClaimAgainstDocument, analyzeFraudRisk } from '@/lib/verificationEngine';
 
 interface DocumentPage {
   page: number;
@@ -139,6 +140,8 @@ ${inputText.slice(0, 10000)}`;
                   'The cited evidence could not be corroborated in the extracted source text.';
               }
 
+              const fraudDetection = analyzeFraudRisk(claim, verdict as Verdict, evidence);
+
               verifiedClaims.push({
                 id: `cl-${Date.now()}-${i + 1}`,
                 claim,
@@ -152,6 +155,7 @@ ${inputText.slice(0, 10000)}`;
                   verdict === 'CONTRADICTED' ? evidence : undefined,
                 sourceDocumentName: documentName || 'Ground_Truth.pdf',
                 verifiedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+                fraudDetection,
               });
             }
 
@@ -166,53 +170,44 @@ ${inputText.slice(0, 10000)}`;
       }
     }
 
-    // Internal deterministic claim verification engine
-    const lines = inputText
-      .split(/\n+/)
-      .map((l: string) => l.replace(/^(\d+[\.\)]\s*|[-•*]\s*)/, '').trim())
-      .filter((l: string) => l.length > 10);
+    // Internal deterministic atomic claim verification engine
+    const tempDoc: SourceDocument = {
+      id: 'doc-verify-target',
+      name: documentName || 'Ground_Truth.pdf',
+      size: '1.0 MB',
+      pages: documentPages.length,
+      uploadedAt: new Date().toISOString(),
+      fileType: 'application/pdf',
+      totalWords: 1500,
+      hash: 'sha256:temp_verify',
+      pageTexts: documentPages,
+    };
+
+    const atomicClaims = extractAtomicClaims(inputText);
+    if (atomicClaims.length === 0 && inputText.trim().length > 8) {
+      atomicClaims.push(inputText.trim());
+    }
 
     const claims = [];
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const normLine = normalize(line);
-      let matchedPage: number | null = null;
-      let matchedEvidence = '';
-      let verdict: Verdict = 'INSUFFICIENT_EVIDENCE';
-      let explanation = `Assertion could not be confirmed in "${documentName}".`;
-      let confidence = 94.0;
-
-      for (const p of documentPages) {
-        const normPage = normalize(p.text);
-        const sentences = p.text.split(/(?<=[.!?])\s+/);
-
-        for (const s of sentences) {
-          const normS = normalize(s);
-          if (normS.includes(normLine) || normLine.includes(normS)) {
-            verdict = 'SUPPORTED';
-            matchedPage = p.page;
-            matchedEvidence = s.trim();
-            explanation = `Corroborated by primary source statement on Page ${p.page}.`;
-            confidence = 99.1;
-            break;
-          }
-        }
-        if (verdict !== 'INSUFFICIENT_EVIDENCE') break;
-      }
+    for (let i = 0; i < atomicClaims.length; i++) {
+      const claimText = atomicClaims[i];
+      const match = verifyClaimAgainstDocument(claimText, tempDoc);
+      const fraudDetection = analyzeFraudRisk(claimText, match.verdict, match.evidence);
 
       claims.push({
         id: `cl-${Date.now()}-${i + 1}`,
-        claim: line,
-        verdict,
-        confidence,
-        evidence: matchedEvidence,
-        page: matchedPage,
-        explanation,
-        supportingEvidence: (verdict as string) === 'SUPPORTED' ? matchedEvidence : undefined,
-        contradictingEvidence: (verdict as string) === 'CONTRADICTED' ? matchedEvidence : undefined,
+        claim: claimText,
+        verdict: match.verdict,
+        confidence: match.confidence,
+        evidence: match.evidence,
+        page: match.page,
+        explanation: match.explanation,
+        supportingEvidence: match.verdict === 'SUPPORTED' ? match.evidence : undefined,
+        contradictingEvidence: match.verdict === 'CONTRADICTED' ? match.evidence : undefined,
         sourceDocumentName: documentName || 'Ground_Truth.pdf',
         verifiedAt: new Date().toISOString().replace('T', ' ').slice(0, 16),
+        fraudDetection,
       });
     }
 

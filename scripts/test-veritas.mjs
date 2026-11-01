@@ -1,164 +1,65 @@
 import assert from 'node:assert';
+import {
+  extractAtomicClaims,
+  verifyClaimAgainstDocument,
+  analyzeFraudRisk,
+  INITIAL_DOCUMENTS,
+  PRESET_INPUTS
+} from '../src/lib/verificationEngine.ts';
 
-console.log('--- VERITAS AI Claim Verification Engine Test Suite ---');
+console.log('--- VERITAS AI Claim Verification & Fraud Detection Test Suite ---');
 
-const doc = {
-  id: 'doc-sec-01',
-  name: 'Cyber_SecOps_Global_Incident_Report_2026.pdf',
-  pages: 4,
-  pageTexts: [
-    {
-      page: 1,
-      text: `EXECUTIVE SUMMARY: GLOBAL CYBERSECURITY THREAT INTELLIGENCE (Q3 2026)
-Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year. The financial sector accounted for 38% of all targeted intrusions, followed by healthcare at 22%. Mean time to detect (MTTD) decreased from 48 hours to 19 hours due to automated AI endpoint agents. Total ransom payments dropped by 31% as enterprise immutable backup compliance reached 87%.`
-    },
-    {
-      page: 2,
-      text: `ZERO TRUST ARCHITECTURE AND COMPLIANCE STANDARDS
-All federal agencies and contractors must enforce multi-factor authentication (MFA) with FIDO2 hardware keys by December 2026. Passwords without hardware-bound keys are classified as non-compliant under CMMC 2.0 Level 3.`
-    }
-  ]
-};
+const doc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-sec-01');
 
-function normalizeText(text) {
-  return text.toLowerCase().replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+const paragraphSample = `Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year. The financial sector accounted for 38% of all targeted intrusions. Total ransom payments skyrocketed by 45% because companies lacked backups. Federal contractors must enforce FIDO2 hardware keys by December 2026. European Union completely banned all endpoint AI agents.`;
+
+console.log('\n[TEST 1] Splitting Multi-Claim Paragraph into Atomic Assertions...');
+const claims = extractAtomicClaims(paragraphSample);
+console.log(`Extracted ${claims.length} atomic claims from paragraph.`);
+assert.strictEqual(claims.length, 5);
+
+console.log('\n[TEST 2] Verifying Each Claim Independently with Fraud Risk Detection...');
+for (const [i, claimText] of claims.entries()) {
+  const result = verifyClaimAgainstDocument(claimText, doc);
+  const fraud = analyzeFraudRisk(claimText, result.verdict, result.evidence);
+
+  console.log(`\nClaim #${i + 1}: "${claimText}"`);
+  console.log(`  - Verdict: [${result.verdict}] (Confidence: ${result.confidence}%)`);
+  console.log(`  - Citation: ${result.page ? `Page ${result.page}` : 'None'}`);
+  if (result.evidence) console.log(`  - Verbatim Evidence: "${result.evidence}"`);
+  console.log(`  - Fraud Detection: Risk [${fraud.riskLevel}] • Score ${fraud.fraudScore}/100 • ${fraud.fraudCategory}`);
+  console.log(`  - Reason: ${fraud.flagReason}`);
+
+  if (i === 0) {
+    assert.strictEqual(result.verdict, 'SUPPORTED');
+    assert.strictEqual(result.page, 1);
+    assert.strictEqual(fraud.riskLevel, 'LOW');
+  } else if (i === 1) {
+    assert.strictEqual(result.verdict, 'SUPPORTED');
+    assert.strictEqual(result.page, 1);
+  } else if (i === 2) {
+    assert.strictEqual(result.verdict, 'CONTRADICTED');
+    assert.strictEqual(result.page, 1);
+    assert.ok(fraud.fraudScore >= 85);
+  } else if (i === 3) {
+    assert.strictEqual(result.verdict, 'SUPPORTED');
+    assert.strictEqual(result.page, 2);
+  } else if (i === 4) {
+    assert.strictEqual(result.verdict, 'INSUFFICIENT_EVIDENCE');
+    assert.strictEqual(result.page, null);
+    assert.strictEqual(result.evidence, '');
+    assert.strictEqual(fraud.riskLevel, 'MEDIUM');
+  }
 }
 
-function verifyClaims(inputText, document) {
-  const rawLines = inputText
-    .split(/\n+/)
-    .map(line => line.trim())
-    .filter(line => line.length > 0);
+console.log('\n[TEST 3] Testing Compound Sentence Splitting...');
+const compound = `Consolidated net revenues reached $18.4 billion, but non-performing loan ratios deteriorated to 18.2%.`;
+const finDoc = INITIAL_DOCUMENTS.find(d => d.id === 'doc-fin-03');
+const compoundClaims = extractAtomicClaims(compound);
+assert.strictEqual(compoundClaims.length, 2);
+const c1 = verifyClaimAgainstDocument(compoundClaims[0], finDoc);
+const c2 = verifyClaimAgainstDocument(compoundClaims[1], finDoc);
+assert.strictEqual(c1.verdict, 'SUPPORTED');
+assert.strictEqual(c2.verdict, 'CONTRADICTED');
 
-  const parsedClaims = [];
-  for (const line of rawLines) {
-    const cleaned = line.replace(/^(\d+[\.\)]\s*|[-•*]\s*)/, '').trim();
-    if (cleaned.length > 10) parsedClaims.push(cleaned);
-  }
-
-  const results = [];
-
-  for (let i = 0; i < parsedClaims.length; i++) {
-    const claimText = parsedClaims[i];
-    const normClaim = normalizeText(claimText);
-
-    let matchedPage = null;
-    let matchedEvidence = '';
-    let verdict = 'INSUFFICIENT_EVIDENCE';
-    let explanation = '';
-    let confidence = 98.0;
-
-    for (const pageItem of document.pageTexts) {
-      const pageNorm = normalizeText(pageItem.text);
-      const numbersInClaim = claimText.match(/(\d+(?:\.\d+)?%?|\$\d+(?:\.\d+)?(?:\s*billion|\s*million)?)/gi) || [];
-
-      const words = claimText
-        .replace(/[^\w\s]/g, '')
-        .split(/\s+/)
-        .filter(w => w.length > 4 && !['about', 'after', 'their', 'which', 'where', 'there', 'based', 'under', 'these'].includes(w.toLowerCase()));
-
-      let keywordMatches = 0;
-      for (const w of words) {
-        if (pageNorm.includes(w.toLowerCase())) keywordMatches++;
-      }
-      const matchRatio = words.length > 0 ? keywordMatches / words.length : 0;
-
-      // Extract candidate sentences from the page
-      const pageSentences = pageItem.text.split(/(?<=[.!?])\s+|\n+/).filter(s => s.trim().length > 10);
-
-      for (const sentence of pageSentences) {
-        const normSentence = normalizeText(sentence);
-
-        if (normSentence.includes(normClaim) || normClaim.includes(normSentence)) {
-          verdict = 'SUPPORTED';
-          matchedPage = pageItem.page;
-          matchedEvidence = sentence.trim();
-          explanation = `Exact factual assertion corroborated by primary text on Page ${pageItem.page}.`;
-          break;
-        }
-
-        // Check common subject terms between claim and sentence
-        const claimWords = claimText.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 3);
-        const sentenceWords = sentence.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/).filter(w => w.length > 3);
-        const sharedWords = claimWords.filter(w => sentenceWords.some(sw => sw.startsWith(w.slice(0, 4)) || w.startsWith(sw.slice(0, 4))));
-
-        const antonymPairs = [
-          ['rose', 'dropped'],
-          ['increased', 'dropped'],
-          ['increased', 'decreased'],
-          ['skyrocketed', 'stable'],
-          ['skyrocketed', 'normal'],
-          ['banned', 'mandated'],
-          ['approved', 'prohibited']
-        ];
-
-        let hasAntonymConflict = false;
-        for (const [pos, neg] of antonymPairs) {
-          if (
-            (normClaim.includes(pos) && normSentence.includes(neg)) ||
-            (normClaim.includes(neg) && normSentence.includes(pos))
-          ) {
-            hasAntonymConflict = true;
-            break;
-          }
-        }
-
-        if (hasAntonymConflict && sharedWords.length >= 2) {
-          verdict = 'CONTRADICTED';
-          matchedPage = pageItem.page;
-          matchedEvidence = sentence.trim();
-          explanation = `Source document explicitly states "${sentence.trim()}", which directly conflicts with the claim.`;
-          break;
-        }
-
-        if (sharedWords.length >= 3 && matchRatio >= 0.5) {
-          verdict = 'SUPPORTED';
-          matchedPage = pageItem.page;
-          matchedEvidence = sentence.trim();
-          explanation = `Corroborated by contextual evidence in Section ${pageItem.page}.`;
-          break;
-        }
-      }
-      if (verdict !== 'INSUFFICIENT_EVIDENCE') break;
-    }
-
-    results.push({
-      claim: claimText,
-      verdict,
-      confidence,
-      page: matchedPage,
-      evidence: matchedEvidence,
-      explanation
-    });
-  }
-
-  return results;
-}
-
-const inputSample = `1. Total ransomware attacks across Fortune 500 enterprises rose by 14.2% year-over-year.
-2. The financial sector accounted for 38% of all targeted intrusions.
-3. Total ransom payments increased by 45% because companies lacked backups.
-4. Federal contractors must enforce FIDO2 hardware keys by December 2026.
-5. European Union completely banned all endpoint AI agents.`;
-
-const results = verifyClaims(inputSample, doc);
-
-console.log(`Evaluated ${results.length} claims:`);
-for (const [i, res] of results.entries()) {
-  console.log(`\nClaim ${i + 1}: ${res.claim}`);
-  console.log(`- Verdict: [${res.verdict}] (Confidence: ${res.confidence}%)`);
-  if (res.evidence) {
-    console.log(`- Evidence (Page ${res.page}): "${res.evidence}"`);
-  }
-  console.log(`- Explanation: ${res.explanation}`);
-}
-
-assert.strictEqual(results[0].verdict, 'SUPPORTED');
-assert.strictEqual(results[0].page, 1);
-assert.strictEqual(results[1].verdict, 'SUPPORTED');
-assert.strictEqual(results[2].verdict, 'CONTRADICTED');
-assert.strictEqual(results[3].verdict, 'SUPPORTED');
-assert.strictEqual(results[3].page, 2);
-assert.strictEqual(results[4].verdict, 'INSUFFICIENT_EVIDENCE');
-
-console.log('\n✓ ALL VERITAS VERIFICATION TESTS PASSED SUCCESSFULLY.');
+console.log('\n✓ ALL TESTS PASSED: Atomic claim extraction, independent verification, and fraud detection working perfectly.');
