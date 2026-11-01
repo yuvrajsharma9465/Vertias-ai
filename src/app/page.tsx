@@ -20,6 +20,8 @@ import {
   X,
   FileCheck,
   Sparkles,
+  Globe,
+  Scale,
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 import {
@@ -142,6 +144,44 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* VerifyAI Problem Statement Header Banner */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-850 to-indigo-950 text-white shadow-md border border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-3xl">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                AI CORE
+              </span>
+              <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">
+                VerifyAI: Misinformation and Claim Verification Assistant
+              </h1>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Extracts factual claims from online content, retrieves relevant credible sources, compares evidence, and presents a transparent assessment rather than relying on unsupported AI-generated verdicts.
+            </p>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-emerald-300 pt-0.5">
+              <span className="font-bold text-slate-400">AI Pillars:</span>
+              <span className="bg-white/10 px-2 py-0.5 rounded">NLP Extraction</span>
+              <span>•</span>
+              <span className="bg-white/10 px-2 py-0.5 rounded">Semantic Search</span>
+              <span>•</span>
+              <span className="bg-white/10 px-2 py-0.5 rounded">RAG Ground Truth</span>
+              <span>•</span>
+              <span className="bg-white/10 px-2 py-0.5 rounded">Evidence Ranking</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/verify"
+              className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Launch Verification</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* 2-Column Responsive Grid matching the Reference Design */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         

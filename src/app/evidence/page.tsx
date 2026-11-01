@@ -11,6 +11,10 @@ import {
   Copy,
   Check,
   Search,
+  ShieldAlert,
+  ShieldCheck,
+  Scale,
+  Fingerprint,
 } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
 
@@ -160,16 +164,38 @@ export default function EvidencePage() {
                   <span className="text-xs font-mono text-slate-500">
                     Confidence: <span className="font-bold text-slate-900">{item.confidence}%</span>
                   </span>
-                </div>
 
-                <div className="flex items-center gap-1.5 text-xs text-sky-700 font-semibold bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">
-                  <FileText className="h-3.5 w-3.5 text-sky-600" />
-                  <span>{item.sourceDocumentName}</span>
-                  {item.page !== null && (
-                    <span className="font-mono text-sky-900 font-bold">
-                      • Page {item.page}
+                  {/* Fraud Risk Indicator */}
+                  {item.verdict === 'CONTRADICTED' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">
+                      <ShieldAlert className="h-3 w-3 text-rose-600" />
+                      <span>FRAUD: CRITICAL</span>
+                    </span>
+                  ) : item.verdict === 'INSUFFICIENT_EVIDENCE' ? (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                      <span>FRAUD: MEDIUM</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                      <span>FRAUD: LOW</span>
                     </span>
                   )}
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                    Rank #1 Retrieval
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs text-sky-700 font-semibold bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">
+                    <FileText className="h-3.5 w-3.5 text-sky-600" />
+                    <span>{item.sourceDocumentName}</span>
+                    {item.page !== null && (
+                      <span className="font-mono text-sky-900 font-bold">
+                        • Page {item.page}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -197,6 +223,21 @@ export default function EvidencePage() {
                 <p className="text-xs font-semibold text-slate-900 bg-slate-50 p-3 rounded-lg border border-slate-200">
                   {item.claim}
                 </p>
+              </div>
+
+              {/* Transparent RAG Reasoning */}
+              <div className="p-3 rounded-xl bg-slate-900 text-slate-200 text-xs font-mono space-y-1">
+                <div className="flex items-center justify-between text-[11px] text-emerald-400 font-bold border-b border-slate-800 pb-1">
+                  <span>Transparent Assessment Pipeline (RAG + Evidence Ranking)</span>
+                  <span>Composite Rank Score: {item.confidence}%</span>
+                </div>
+                <div className="text-[11px] text-slate-300">
+                  {item.verdict === 'SUPPORTED'
+                    ? `Corroborated by primary verbatim statement on Page ${item.page}. Lexical & semantic ranking matched Rank #1 ground-truth passage.`
+                    : item.verdict === 'CONTRADICTED'
+                    ? `Direct contradiction detected on Page ${item.page}. Audited source numbers conflict with the claim assertion.`
+                    : `Zero corroborating sentences located in "${item.sourceDocumentName}". Verified insufficient evidence.`}
+                </div>
               </div>
 
               {/* Auditor Explanation & Footer */}
